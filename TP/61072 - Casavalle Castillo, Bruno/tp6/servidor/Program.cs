@@ -30,23 +30,22 @@ using (var scope = app.Services.CreateScope())
     db.Database.EnsureCreated();
 
 
-    if (!db.Productos.Any())
-    {
-        db.Productos.AddRange(
-            new Producto { Nombre = "Celular Samsung A54", Descripcion = "Pantalla AMOLED", Precio = 200000, Stock = 12, },
-            new Producto { Nombre = "Notebook HP", Descripcion = "Intel i5, 8GB RAM", Precio = 480000, Stock = 7, },
-            new Producto { Nombre = "Mouse Logitech", Descripcion = "Mouse inalámbrico", Precio = 9500, Stock = 25, },
-            new Producto { Nombre = "Teclado Redragon", Descripcion = "Teclado mecánico RGB", Precio = 18000, Stock = 10, },
-            new Producto { Nombre = "Auriculares Sony", Descripcion = "Cancelación de ruido", Precio = 27000, Stock = 15, },
-            new Producto { Nombre = "Monitor LG 24\"", Descripcion = "Full HD", Precio = 125000, Stock = 9, },
-            new Producto { Nombre = "Impresora Epson", Descripcion = "Multifunción", Precio = 85000, Stock = 6, },
-            new Producto { Nombre = "Parlantes Bluetooth", Descripcion = "Potentes y portátiles", Precio = 32000, Stock = 18, },
-            new Producto { Nombre = "Webcam Logitech", Descripcion = "HD 720p", Precio = 14500, Stock = 20, },
-            new Producto { Nombre = "Cargador portátil", Descripcion = "10.000 mAh", Precio = 11000, Stock = 30, }
-        );
+    db.Productos.RemoveRange(db.Productos);
+    db.SaveChanges();
 
-        db.SaveChanges();
-    }
+    db.Productos.AddRange(
+        new Producto { Nombre = "Celular Samsung A54", Descripcion = "Pantalla AMOLED", Precio = 200000, Stock = 12 },
+        new Producto { Nombre = "Notebook HP", Descripcion = "Intel i5, 8GB RAM", Precio = 480000, Stock = 7 },
+        new Producto { Nombre = "Mouse Logitech", Descripcion = "Mouse inalámbrico", Precio = 9500, Stock = 25 },
+        new Producto { Nombre = "Teclado Redragon", Descripcion = "Teclado mecánico RGB", Precio = 18000, Stock = 10 },
+        new Producto { Nombre = "Auriculares Sony", Descripcion = "Cancelación de ruido", Precio = 27000, Stock = 15 },
+        new Producto { Nombre = "Monitor LG 24\"", Descripcion = "Full HD", Precio = 125000, Stock = 9 },
+        new Producto { Nombre = "Impresora Epson", Descripcion = "Multifunción", Precio = 85000, Stock = 6 },
+        new Producto { Nombre = "Parlantes Bluetooth", Descripcion = "Potentes y portátiles", Precio = 32000, Stock = 18 },
+        new Producto { Nombre = "Webcam Logitech", Descripcion = "HD 720p", Precio = 14500, Stock = 20 },
+        new Producto { Nombre = "Cargador portátil", Descripcion = "10.000 mAh", Precio = 11000, Stock = 30 }
+    );
+    db.SaveChanges();
 }
 
 if (app.Environment.IsDevelopment())
