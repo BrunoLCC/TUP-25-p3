@@ -1,5 +1,4 @@
 using System.Net.Http.Json;
-using cliente.Models;
 
 public class ProductoService
 {
