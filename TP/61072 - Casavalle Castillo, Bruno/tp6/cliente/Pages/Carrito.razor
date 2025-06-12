@@ -1,0 +1,80 @@
+@page "/carrito"
+@inject CarritoService carritoService
+
+<h3>Carrito de compras</h3>
+
+@if (carrito.Count == 0)
+{
+    <div class="alert alert-info">No hay productos en el carrito.</div>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Imagen</th>
+                <th>Producto</th>
+                <th>Precio</th>
+                <th>Cantidad</th>
+                <th>Subtotal</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in carrito)
+            {
+                <tr>
+                    <td><img src="@item.ImagenUrl" alt="Imagen" width="80" /></td>
+                    <td>@item.Nombre</td>
+                    <td>$@item.Precio</td>
+                    <td>@item.Cantidad</td>
+                    <td>$@item.Subtotal</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" @onclick="() => Eliminar(item.ProductoId)">
+                            <i class="bi bi-trash"></i> Quitar
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h5>Total: $@carritoService.CalcularTotal()</h5>
+
+    <button class="btn btn-warning" @onclick="Vaciar">
+        <i class="bi bi-x-circle"></i> Vaciar carrito
+    </button>
+}
+
+@code {
+using servidor.Models;
+
+private List<ItemCarrito> carrito = new();
+
+protected override void OnInitialized()
+{
+    carrito = carritoService.ObtenerItems().ToList();
+    carritoService.OnChange += Actualizar;
+}
+
+private void Actualizar()
+{
+    carrito = carritoService.ObtenerItems().ToList();
+    InvokeAsync(StateHasChanged);
+}
+
+private void Eliminar(int id)
+{
+    carritoService.EliminarProducto(id);
+}
+
+private void Vaciar()
+{
+    carritoService.VaciarCarrito();
+}
+
+public void Dispose()
+{
+    carritoService.OnChange -= Actualizar;
+}
+}

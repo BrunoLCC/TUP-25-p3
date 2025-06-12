@@ -1,12 +1,13 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using cliente; // tu espacio de nombres principal
-using cliente.Services; // si ProductoService está aquí
+using cliente;
+using cliente.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
+builder.Services.AddScoped<CarritoService>();
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://localhost:5184/") });
 builder.Services.AddScoped<ProductoService>();
