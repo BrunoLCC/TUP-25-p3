@@ -1,4 +1,42 @@
 ﻿@inherits LayoutComponentBase
+@inject CarritoService carritoService
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">Tecno Compra</a>
+
+        <div class="d-flex align-items-center">
+            <a href="/carrito" class="btn btn-outline-primary position-relative">
+                <i class="bi bi-cart"></i>
+                <span class="badge bg-danger position-absolute top-0 start-100 translate-middle">
+                    @cantidadTotal
+                </span>
+            </a>
+        </div>
+    </div>
+</nav>
+
 <div class="page">
     @Body
 </div>
+
+@code {
+    private int cantidadTotal;
+
+    protected override void OnInitialized()
+    {
+        cantidadTotal = carritoService.ObtenerItems().Sum(i => i.Cantidad);
+        carritoService.OnChange += ActualizarCantidad;
+    }
+
+    private void ActualizarCantidad()
+    {
+        cantidadTotal = carritoService.ObtenerItems().Sum(i => i.Cantidad);
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        carritoService.OnChange -= ActualizarCantidad;
+    }
+}

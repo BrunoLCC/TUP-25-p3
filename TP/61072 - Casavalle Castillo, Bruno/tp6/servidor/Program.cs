@@ -1,13 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using servidor.Data;
 using servidor.Models;
+using servidor.DTOs;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 builder.Services.AddDbContext<TiendaDbContext>(options =>
     options.UseSqlite("Data Source=C:\\Users\\Bruno Casavalle\\Desktop\\TUP-25-p3\\TP\\61072 - Casavalle Castillo, Bruno\\tp6\\servidor\\tienda.db"));
-
 
 builder.Services.AddCors(options =>
 {
@@ -19,7 +18,6 @@ builder.Services.AddCors(options =>
     });
 });
 
-
 builder.Services.AddControllers();
 
 var app = builder.Build();
@@ -28,7 +26,6 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<TiendaDbContext>();
     db.Database.EnsureCreated();
-
 
     db.Productos.RemoveRange(db.Productos);
     db.SaveChanges();
@@ -40,7 +37,7 @@ using (var scope = app.Services.CreateScope())
         new Producto { Nombre = "Teclado Redragon", Descripcion = "Teclado mecánico RGB", Precio = 18000, Stock = 10, ImagenUrl = "image/teclado_redragon.jpg" },
         new Producto { Nombre = "Auriculares Sony", Descripcion = "Cancelación de ruido", Precio = 27000, Stock = 15, ImagenUrl = "image/Auris_Sony.jpg" },
         new Producto { Nombre = "Monitor LG 24\"", Descripcion = "Full HD", Precio = 125000, Stock = 9, ImagenUrl = "image/Monitos_LG.jpg" },
-        new Producto { Nombre = "Parlantes Bluetooth ", Descripcion = "Potentes y portátiles", Precio = 32000, Stock = 18, ImagenUrl = "image/Parlantes_Bluetooth_JBL.jpg" }
+        new Producto { Nombre = "Parlantes Bluetooth", Descripcion = "Potentes y portátiles", Precio = 32000, Stock = 18, ImagenUrl = "image/Parlantes_Bluetooth_JBL.jpg" }
     );
     db.SaveChanges();
 }
@@ -52,11 +49,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowClientApp");
 
-
 app.MapGet("/", () => "Servidor API está en funcionamiento");
 
 app.MapGet("/api/datos", () => new { Mensaje = "Datos desde el servidor", Fecha = DateTime.Now });
-
 
 app.MapGet("/api/productos", async (TiendaDbContext db, string? buscar) =>
 {
@@ -66,6 +61,49 @@ app.MapGet("/api/productos", async (TiendaDbContext db, string? buscar) =>
         productos = productos.Where(p => p.Nombre.Contains(buscar));
 
     return await productos.ToListAsync();
+});
+
+app.MapPost("/api/compras", async (CompraDto compraDto, TiendaDbContext db) =>
+{
+    if (compraDto.Items == null || !compraDto.Items.Any())
+        return Results.BadRequest("La compra no contiene productos.");
+
+    var compra = new Compra
+    {
+        Fecha = DateTime.Now,
+        NombreCliente = compraDto.NombreCliente,
+        ApellidoCliente = compraDto.ApellidoCliente,
+        EmailCliente = compraDto.EmailCliente,
+        Total = 0,
+        Items = new List<ItemCompra>()
+    };
+
+    foreach (var itemDto in compraDto.Items)
+    {
+        var producto = await db.Productos.FindAsync(itemDto.ProductoId);
+        if (producto == null)
+            return Results.BadRequest($"Producto con ID {itemDto.ProductoId} no encontrado.");
+
+        if (producto.Stock < itemDto.Cantidad)
+            return Results.BadRequest($"Stock insuficiente para {producto.Nombre}.");
+
+        producto.Stock -= itemDto.Cantidad;
+
+        var itemCompra = new ItemCompra
+        {
+            ProductoId = producto.Id,
+            Cantidad = itemDto.Cantidad,
+            PrecioUnitario = producto.Precio
+        };
+
+        compra.Items.Add(itemCompra);
+        compra.Total += itemDto.Cantidad * producto.Precio;
+    }
+
+    db.Compras.Add(compra);
+    await db.SaveChangesAsync();
+
+    return Results.Ok(new { compra.Id, compra.Fecha, compra.Total });
 });
 
 app.Run();

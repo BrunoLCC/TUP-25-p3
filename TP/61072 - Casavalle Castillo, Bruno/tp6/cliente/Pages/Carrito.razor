@@ -1,5 +1,10 @@
 @page "/carrito"
 @inject CarritoService carritoService
+@inject HttpClient http
+@inject NavigationManager nav
+@using servidor.Models
+@using System.Net.Http.Json
+@implements IDisposable
 
 <h3>Carrito de compras</h3>
 
@@ -44,37 +49,97 @@ else
     <button class="btn btn-warning" @onclick="Vaciar">
         <i class="bi bi-x-circle"></i> Vaciar carrito
     </button>
+
+    <hr />
+
+    <h4>Datos del cliente</h4>
+
+    <EditForm Model="@compraCliente" OnValidSubmit="ConfirmarCompra">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label>Nombre</label>
+            <InputText class="form-control" @bind-Value="compraCliente.NombreCliente" />
+        </div>
+
+        <div class="mb-3">
+            <label>Apellido</label>
+            <InputText class="form-control" @bind-Value="compraCliente.ApellidoCliente" />
+        </div>
+
+        <div class="mb-3">
+            <label>Email</label>
+            <InputText class="form-control" @bind-Value="compraCliente.EmailCliente" />
+        </div>
+
+        <button class="btn btn-success" type="submit">Confirmar compra</button>
+    </EditForm>
 }
 
 @code {
-using servidor.Models;
+    private List<ItemCarrito> carrito = new();
+    private CompraClienteDto compraCliente = new();
 
-private List<ItemCarrito> carrito = new();
+    protected override void OnInitialized()
+    {
+        carrito = carritoService.ObtenerItems().ToList();
+        carritoService.OnChange += Actualizar;
+    }
 
-protected override void OnInitialized()
-{
-    carrito = carritoService.ObtenerItems().ToList();
-    carritoService.OnChange += Actualizar;
-}
+    private void Actualizar()
+    {
+        carrito = carritoService.ObtenerItems().ToList();
+        InvokeAsync(StateHasChanged);
+    }
 
-private void Actualizar()
-{
-    carrito = carritoService.ObtenerItems().ToList();
-    InvokeAsync(StateHasChanged);
-}
+    private void Eliminar(int id)
+    {
+        carritoService.EliminarProducto(id);
+    }
 
-private void Eliminar(int id)
-{
-    carritoService.EliminarProducto(id);
-}
+    private void Vaciar()
+    {
+        carritoService.VaciarCarrito();
+    }
 
-private void Vaciar()
-{
-    carritoService.VaciarCarrito();
-}
+    public void Dispose()
+    {
+        carritoService.OnChange -= Actualizar;
+    }
 
-public void Dispose()
-{
-    carritoService.OnChange -= Actualizar;
-}
+    private async Task ConfirmarCompra()
+    {
+        var dto = new
+        {
+            NombreCliente = compraCliente.NombreCliente,
+            ApellidoCliente = compraCliente.ApellidoCliente,
+            EmailCliente = compraCliente.EmailCliente,
+            Items = carrito.Select(i => new
+            {
+                ProductoId = i.ProductoId,
+                Cantidad = i.Cantidad
+            }).ToList()
+        };
+
+        var response = await http.PostAsJsonAsync("api/compras", dto);
+
+        if (response.IsSuccessStatusCode)
+        {
+            carritoService.VaciarCarrito();
+            nav.NavigateTo("/gracias");
+        }
+        else
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            Console.WriteLine("Error al confirmar compra: " + error);
+        }
+    }
+
+    class CompraClienteDto
+    {
+        public string NombreCliente { get; set; } = "";
+        public string ApellidoCliente { get; set; } = "";
+        public string EmailCliente { get; set; } = "";
+    }
 }

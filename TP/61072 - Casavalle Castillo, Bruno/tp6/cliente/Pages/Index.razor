@@ -1,6 +1,6 @@
 ﻿@page "/"
 @inject ProductoService productoService
-@inject CarritoService CarritoService
+@inject CarritoService carritoService
 
 <h1 class="mb-4 text-center">Catálogo de Productos</h1>
 
@@ -73,6 +73,6 @@ else
 
     void AgregarAlCarrito(Producto producto)
     {
-        CarritoService.AgregarProducto(producto);
+        carritoService.AgregarProducto(producto, 1);
     }
 }
