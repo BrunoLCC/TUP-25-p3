@@ -63,6 +63,14 @@ app.MapGet("/api/productos", async (TiendaDbContext db, string? buscar) =>
     return await productos.ToListAsync();
 });
 
+app.MapGet("/api/productos/{id:int}", async (int id, TiendaDbContext db) =>
+{
+    var producto = await db.Productos.FirstOrDefaultAsync(p => p.Id == id);
+    if (producto == null)
+        return Results.NotFound();
+    return Results.Ok(producto);
+});
+
 app.MapPost("/api/compras", async (CompraDto compraDto, TiendaDbContext db) =>
 {
     if (compraDto.Items == null || !compraDto.Items.Any())

@@ -32,7 +32,15 @@ else
                     <td><img src="@item.ImagenUrl" alt="Imagen" width="80" /></td>
                     <td>@item.Nombre</td>
                     <td>$@item.Precio</td>
-                    <td>@item.Cantidad</td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <button class="btn btn-sm btn-outline-secondary me-2"
+                                @onclick="() => Disminuir(item.ProductoId)">-</button>
+                            <span>@item.Cantidad</span>
+                            <button class="btn btn-sm btn-outline-secondary ms-2"
+                                @onclick="() => Incrementar(item.ProductoId)">+</button>
+                        </div>
+                    </td>
                     <td>$@item.Subtotal</td>
                     <td>
                         <button class="btn btn-danger btn-sm" @onclick="() => Eliminar(item.ProductoId)">
@@ -101,6 +109,16 @@ else
     private void Vaciar()
     {
         carritoService.VaciarCarrito();
+    }
+
+    private async Task Incrementar(int productoId)
+    {
+        await carritoService.IncrementarCantidad(productoId);
+    }
+
+    private void Disminuir(int productoId)
+    {
+        carritoService.DisminuirCantidad(productoId);
     }
 
     public void Dispose()

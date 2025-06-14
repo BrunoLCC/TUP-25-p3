@@ -17,4 +17,8 @@ public class ProductoService
 
         return await _http.GetFromJsonAsync<List<Producto>>(url) ?? new();
     }
+    public async Task<Producto?> ObtenerPorId(int id)
+    {
+        return await _http.GetFromJsonAsync<Producto>($"/api/productos/{id}");
+    }
 }
