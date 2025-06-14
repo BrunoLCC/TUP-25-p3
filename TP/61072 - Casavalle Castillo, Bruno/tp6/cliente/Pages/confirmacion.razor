@@ -93,7 +93,6 @@
         }
     }
 
-    // Definí acá o en archivo aparte con validaciones, según prefieras
     public class CompraClienteDto
     {
         [Required(ErrorMessage = "El nombre es obligatorio")]
@@ -106,5 +105,4 @@
         [EmailAddress(ErrorMessage = "Email no válido")]
         public string EmailCliente { get; set; } = "";
     }
-}
 }
