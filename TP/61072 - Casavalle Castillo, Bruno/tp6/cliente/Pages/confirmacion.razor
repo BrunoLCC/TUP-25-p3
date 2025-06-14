@@ -1,0 +1,98 @@
+@page "/realizar-compra"
+@inject CarritoService carritoService
+@inject HttpClient http
+@inject NavigationManager nav
+@using servidor.Models
+@using System.Net.Http.Json
+
+<div class="realizar-compra-container">
+
+    <h3>Formulario de compra</h3>
+
+    @if (carrito.Count == 0)
+    {
+        <div class="alert alert-info">No hay productos en el carrito.</div>
+    }
+    else
+    {
+        <EditForm Model="@compraCliente" OnValidSubmit="ConfirmarCompra">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="mb-3">
+                <label class="text-center">Nombre</label>
+                <InputText class="form-control" @bind-Value="compraCliente.NombreCliente" />
+            </div>
+
+            <div class="mb-3">
+                <label class="text-center">Apellido</label>
+                <InputText class="form-control" @bind-Value="compraCliente.ApellidoCliente" />
+            </div>
+
+            <div class="mb-3">
+                <label class="text-center">Email</label>
+                <InputText class="form-control" @bind-Value="compraCliente.EmailCliente" />
+            </div>
+
+            <h5 class="text-center">Resumen del carrito</h5>
+            <ul class="list-group mb-3">
+                @foreach (var item in carrito)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        @item.Nombre (@($"x{item.Cantidad}"))
+                        <span>$@item.Subtotal</span>
+                    </li>
+                }
+            </ul>
+
+            <h5 class="text-center">Total: $@carritoService.CalcularTotal()</h5>
+
+            <button class="btn btn-success" type="submit">Confirmar compra</button>
+        </EditForm>
+    }
+</div>
+
+@code {
+    private List<ItemCarrito> carrito = new();
+    private CompraClienteDto compraCliente = new();
+
+    protected override void OnInitialized()
+    {
+        carrito = carritoService.ObtenerItems().ToList();
+    }
+
+    private async Task ConfirmarCompra()
+    {
+        var dto = new
+        {
+            NombreCliente = compraCliente.NombreCliente,
+            ApellidoCliente = compraCliente.ApellidoCliente,
+            EmailCliente = compraCliente.EmailCliente,
+            Items = carrito.Select(i => new
+            {
+                ProductoId = i.ProductoId,
+                Cantidad = i.Cantidad
+            }).ToList()
+        };
+
+        var response = await http.PostAsJsonAsync("api/compras", dto);
+
+        if (response.IsSuccessStatusCode)
+        {
+            carritoService.VaciarCarrito();
+            nav.NavigateTo("/gracias");
+        }
+        else
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            Console.WriteLine("Error al confirmar compra: " + error);
+        }
+    }
+
+    class CompraClienteDto
+    {
+        public string NombreCliente { get; set; } = "";
+        public string ApellidoCliente { get; set; } = "";
+        public string EmailCliente { get; set; } = "";
+    }
+}

@@ -6,84 +6,73 @@
 @using System.Net.Http.Json
 @implements IDisposable
 
-<h3>Carrito de compras</h3>
+<div class="carrito-wrapper">
+    <div class="carrito-contenedor">
+        <h3 class="carrito-titulo mb-4 text-center">🛒 Carrito de compras</h3>
 
-@if (carrito.Count == 0)
-{
-    <div class="alert alert-info">No hay productos en el carrito.</div>
-}
-else
-{
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Imagen</th>
-                <th>Producto</th>
-                <th>Precio</th>
-                <th>Cantidad</th>
-                <th>Subtotal</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in carrito)
-            {
-                <tr>
-                    <td><img src="@item.ImagenUrl" alt="Imagen" width="80" /></td>
-                    <td>@item.Nombre</td>
-                    <td>$@item.Precio</td>
-                    <td>
-                        <div class="d-flex align-items-center">
-                            <button class="btn btn-sm btn-outline-secondary me-2"
-                                @onclick="() => Disminuir(item.ProductoId)">-</button>
-                            <span>@item.Cantidad</span>
-                            <button class="btn btn-sm btn-outline-secondary ms-2"
-                                @onclick="() => Incrementar(item.ProductoId)">+</button>
-                        </div>
-                    </td>
-                    <td>$@item.Subtotal</td>
-                    <td>
-                        <button class="btn btn-danger btn-sm" @onclick="() => Eliminar(item.ProductoId)">
-                            <i class="bi bi-trash"></i> Quitar
-                        </button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+        @if (carrito.Count == 0)
+        {
+            <div class="alert alert-info text-center">No hay productos en el carrito.</div>
+        }
+        else
+        {
+            <table class="table table-hover align-middle text-center">
+                <thead class="table-light">
+                    <tr>
+                        <th>Imagen</th>
+                        <th>Producto</th>
+                        <th>Precio</th>
+                        <th>Cantidad</th>
+                        <th>Subtotal</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in carrito)
+                    {
+                        <tr>
+                            <td>
+                                <img src="@item.ImagenUrl" alt="Imagen" class="carrito-img" />
+                            </td>
+                            <td>@item.Nombre</td>
+                            <td>$@item.Precio</td>
+                            <td>
+                                <div class="d-flex align-items-center justify-content-center">
+                                    <button class="btn btn-outline-secondary btn-sm me-2"
+                                            @onclick="() => Disminuir(item.ProductoId)">-</button>
+                                    <span>@item.Cantidad</span>
+                                    <button class="btn btn-outline-secondary btn-sm ms-2"
+                                            @onclick="() => Incrementar(item.ProductoId)">+</button>
+                                </div>
+                            </td>
+                            <td>$@item.Subtotal</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm"
+                                        @onclick="() => Eliminar(item.ProductoId)">
+                                    <i class="bi bi-trash"></i> Quitar
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
 
-    <h5>Total: $@carritoService.CalcularTotal()</h5>
+            <h5 class="text-center mt-4 mb-3" style="color: black;">Total: <strong>$@carritoService.CalcularTotal()</strong></h5>
 
-    <button class="btn btn-warning" @onclick="Vaciar">
-        <i class="bi bi-x-circle"></i> Vaciar carrito
-    </button>
+            <div class="d-flex flex-column flex-md-row justify-content-center gap-2 ">
+                <button class="btn btn-success"
+                        @onclick='() => nav.NavigateTo("/realizar-compra")'>
+                    <i class="bi bi-cash"></i> Realizar compra
+                </button>
 
-    <hr />
-
-    <h4>Datos del cliente</h4>
-
-    <EditForm Model="@compraCliente" OnValidSubmit="ConfirmarCompra">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
-
-        <div class="mb-3">
-            <label>Nombre</label>
-            <InputText class="form-control" @bind-Value="compraCliente.NombreCliente" />
-        </div>
-
-        <div class="mb-3">
-            <label>Apellido</label>
-            <InputText class="form-control" @bind-Value="compraCliente.ApellidoCliente" />
-        </div>
-
-        <div class="mb-3">
-            <label>Email</label>
-            <InputText class="form-control" @bind-Value="compraCliente.EmailCliente" />
-        </div>
-
-        <button class="btn btn-success" type="submit">Confirmar compra</button>
-    </EditForm>
-}
+                <button class="btn btn-outline-warning"
+                        @onclick="Vaciar">
+                    <i class="bi bi-x-circle"></i> Vaciar carrito
+                </button>
+            </div>
+        }
+    </div>
+</div>
 
 @code {
     private List<ItemCarrito> carrito = new();

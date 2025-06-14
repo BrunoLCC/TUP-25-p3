@@ -37,7 +37,12 @@ using (var scope = app.Services.CreateScope())
         new Producto { Nombre = "Teclado Redragon", Descripcion = "Teclado mecánico RGB", Precio = 18000, Stock = 10, ImagenUrl = "image/teclado_redragon.jpg" },
         new Producto { Nombre = "Auriculares Sony", Descripcion = "Cancelación de ruido", Precio = 27000, Stock = 15, ImagenUrl = "image/Auris_Sony.jpg" },
         new Producto { Nombre = "Monitor LG 24\"", Descripcion = "Full HD", Precio = 125000, Stock = 9, ImagenUrl = "image/Monitos_LG.jpg" },
-        new Producto { Nombre = "Parlantes Bluetooth", Descripcion = "Potentes y portátiles", Precio = 32000, Stock = 18, ImagenUrl = "image/Parlantes_Bluetooth_JBL.jpg" }
+        new Producto { Nombre = "Parlantes Bluetooth", Descripcion = "Potentes y portátiles", Precio = 32000, Stock = 18, ImagenUrl = "image/Parlantes_Bluetooth_JBL.jpg" },
+        new Producto { Nombre = "Tablet Lenovo", Descripcion = "10.1 pulgadas, 64GB", Precio = 150000, Stock = 8, ImagenUrl = "image/Tablet_Lenovo.jpeg" },
+        new Producto { Nombre = "Smartwatch Xiaomi", Descripcion = "Pantalla AMOLED, GPS", Precio = 45000, Stock = 20, ImagenUrl = "image/Smartwatch_Xiaomi.jpg" },
+        new Producto { Nombre = "iPhone 13", Descripcion = "128GB, chip A15 Bionic", Precio = 590000, Stock = 5, ImagenUrl = "image/iPhone_13.jpg" },
+new Producto { Nombre = "Notebook Lenovo Ideapad", Descripcion = "Ryzen 5, 16GB RAM, SSD 512GB", Precio = 520000, Stock = 4, ImagenUrl = "image/Lenovo_Ideapad.jpeg" },
+new Producto { Nombre = "Smartwatch Xiaomi Watch S1", Descripcion = "Pantalla AMOLED, GPS, resistente al agua", Precio = 92000, Stock = 8, ImagenUrl = "image/Xiaomi_Watch_S1.jpeg" }
     );
     db.SaveChanges();
 }
